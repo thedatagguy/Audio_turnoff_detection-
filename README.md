@@ -117,6 +117,58 @@ print(next(iter(ds)).keys())
 
 Both checks pass as of this setup (2026-08-20).
 
+## Data preparation
+
+`src/data_prep.py` streams `pipecat-ai/smart-turn-data-v3.2-train` (no need
+to download the full 41.4GB up front) and curates a working subset:
+
+```bash
+uv run python src/data_prep.py --out-dir data/processed --max-scan 150000
+```
+
+- Applies per-language sample quotas (see `LANGUAGE_QUOTAS` in the script).
+  **Hindi is weighted far above its natural frequency** (quota 12,000, vs.
+  an estimated ~12k total available in the full dataset — i.e. we try to
+  take essentially all of it) since it's the closest available proxy for
+  the Hinglish target domain. Everything else is a thin general-multilingual
+  baseline slice, not a training priority.
+- The dataset has **no explicit Hinglish (code-switched) label** — only
+  plain `language == "hin"`. The Hindi pool curated here is a proxy, not
+  the real thing. A small hand-checked/supplemented Hinglish eval set is
+  still a to-do (see Status below).
+- Resamples every clip to 16kHz mono (Whisper's expected input) and writes
+  WAV files to `data/processed/audio/`.
+- Writes a stratified (by `language` + `endpoint_bool`) 80/10/10
+  train/val/test split to `metadata_{train,val,test}.csv`, plus a
+  `summary.json` with actual scanned/kept counts (the per-language numbers
+  above are estimates from HF's *partial* dataset statistics — this script
+  reports real counts from the actual streamed run).
+- `--max-scan` is a safety cap on rows scanned (the stream isn't shuffled
+  by language, so quotas may not all fill exactly); raise it if a run ends
+  with under-filled quotas for languages you care about.
+
+Verified end-to-end on a small scan (300 rows) before the full run: streaming,
+resampling, WAV writing, and the stratified split all work correctly,
+including the edge case where a language+label stratum has too few members
+to split normally (handled via `safe_stratified_split`, which falls back to
+an unstratified split for just those thin strata instead of crashing).
+
+### Full run results (`--max-scan 150000`, 2026-08-20)
+
+- **150,000 rows scanned → 34,755 clips kept**, 7.7GB on disk. File counts
+  verified consistent: 34,755 WAVs = 27,804 train + 3,475 val + 3,476 test
+  rows across the metadata CSVs.
+- `endpoint_bool` stayed balanced in the kept set: 17,471 False / 17,284 True.
+- **Hindi came in at 6,655 clips — under the 12,000 quota.** The scan hit its
+  150,000-row cap before finding enough Hindi rows to fill it (the dataset
+  isn't shuffled by language, so a 150k-row prefix doesn't sample every
+  language proportionally). English hit its full 6,000-clip cap. Still,
+  6,655 is ~4-6x the size of any other single non-English language pool
+  here, so it remains the clear second-largest language and usable for the
+  Hinglish-focused fine-tuning — raising `--max-scan` (or scanning the full
+  270,946 rows) would close the gap further if the model needs more Hindi
+  data after initial experiments.
+
 ## Project layout
 
 ```
@@ -130,7 +182,9 @@ reports/        write-up, eval results, figures
 ## Status
 
 - [x] Environment scaffolded (uv, Python 3.12, CUDA-enabled torch, full stack verified)
-- [ ] Data loading + Hinglish subset curation
+- [x] Data loading + curation script (`src/data_prep.py`), verified end-to-end
+- [x] Full data-prep pass run — 34,755 clips curated (`data/processed/`, see below)
+- [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
 - [ ] Model (Whisper-tiny encoder + classification head)
 - [ ] Training loop
 - [ ] Evaluation (general + Hinglish-specific split, latency benchmark)
