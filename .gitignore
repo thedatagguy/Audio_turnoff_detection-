@@ -1,0 +1,10 @@
+.venv/
+.claude/
+__pycache__/
+*.pyc
+data/
+checkpoints/
+.cache/
+*.wav
+*.mp3
+.ipynb_checkpoints/

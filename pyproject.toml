@@ -1,0 +1,26 @@
+[project]
+name = "audio-turn-detection"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.14.0",
+    "datasets>=2.19.1",
+    "evaluate>=0.4.6",
+    "gradio>=6.25.0",
+    "huggingface-hub>=1.28.0",
+    "librosa>=1.0.0",
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.2",
+    "pandas>=3.0.5",
+    "scikit-learn>=1.9.0",
+    "soundfile>=0.14.0",
+    "torch>=2.11.0",
+    "torchaudio>=2.11.0",
+    "tqdm>=4.66.5",
+    "transformers>=5.15.1",
+]
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cu128"
