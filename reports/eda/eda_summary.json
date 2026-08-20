@@ -1,0 +1,168 @@
+{
+  "total_clips": 34755,
+  "split_counts": {
+    "train": 27804,
+    "test": 3476,
+    "val": 3475
+  },
+  "language_counts": {
+    "hin": 6655,
+    "eng": 6000,
+    "deu": 1500,
+    "por": 1500,
+    "fra": 1500,
+    "rus": 1500,
+    "spa": 1500,
+    "ben": 1000,
+    "ind": 1000,
+    "kor": 1000,
+    "fin": 1000,
+    "vie": 1000,
+    "nld": 1000,
+    "pol": 1000,
+    "tur": 1000,
+    "nor": 1000,
+    "ukr": 800,
+    "ita": 800,
+    "jpn": 800,
+    "ara": 800,
+    "zho": 800,
+    "dan": 800,
+    "mar": 800
+  },
+  "endpoint_bool_overall": {
+    "false": 17471,
+    "true": 17284
+  },
+  "endpoint_true_rate_by_language": {
+    "pol": 0.476,
+    "deu": 0.477,
+    "rus": 0.481,
+    "kor": 0.484,
+    "vie": 0.484,
+    "por": 0.485,
+    "zho": 0.486,
+    "mar": 0.486,
+    "hin": 0.491,
+    "ita": 0.495,
+    "eng": 0.499,
+    "fin": 0.5,
+    "nor": 0.502,
+    "ben": 0.504,
+    "spa": 0.505,
+    "dan": 0.51,
+    "jpn": 0.51,
+    "fra": 0.511,
+    "nld": 0.515,
+    "ukr": 0.516,
+    "tur": 0.518,
+    "ind": 0.527,
+    "ara": 0.528
+  },
+  "duration_stats_overall": {
+    "count": 34755.0,
+    "mean": 7.318,
+    "std": 3.185,
+    "min": 0.36,
+    "25%": 4.88,
+    "50%": 6.76,
+    "75%": 9.24,
+    "max": 32.596
+  },
+  "duration_stats_by_endpoint": {
+    "count": {
+      "false": 17471.0,
+      "true": 17284.0
+    },
+    "mean": {
+      "false": 7.271,
+      "true": 7.366
+    },
+    "std": {
+      "false": 3.116,
+      "true": 3.253
+    },
+    "min": {
+      "false": 0.44,
+      "true": 0.36
+    },
+    "25%": {
+      "false": 4.92,
+      "true": 4.855
+    },
+    "50%": {
+      "false": 6.76,
+      "true": 6.8
+    },
+    "75%": {
+      "false": 9.16,
+      "true": 9.32
+    },
+    "max": {
+      "false": 30.0,
+      "true": 32.596
+    }
+  },
+  "rows_with_filler_annotations": 29705,
+  "rows_missing_filler_annotations": 5050,
+  "endpoint_true_rate_by_endfiller": {
+    "false": 0.747,
+    "true": 0.0
+  },
+  "endpoint_true_rate_by_midfiller": {
+    "false": 0.512,
+    "true": 0.485
+  },
+  "synthetic_counts": {
+    "true": 30428,
+    "false": 4327
+  },
+  "synthetic_by_language": {
+    "ara": 1.0,
+    "ben": 1.0,
+    "dan": 1.0,
+    "deu": 1.0,
+    "eng": 0.333,
+    "fin": 1.0,
+    "fra": 1.0,
+    "hin": 1.0,
+    "ind": 1.0,
+    "ita": 1.0,
+    "jpn": 1.0,
+    "kor": 1.0,
+    "mar": 1.0,
+    "nld": 1.0,
+    "nor": 1.0,
+    "pol": 1.0,
+    "por": 1.0,
+    "rus": 1.0,
+    "spa": 0.785,
+    "tur": 1.0,
+    "ukr": 1.0,
+    "vie": 1.0,
+    "zho": 1.0
+  },
+  "source_dataset_counts": {
+    "chirp3_1": 21448,
+    "chirp3_2": 8200,
+    "liva_1": 2851,
+    "midcentury_1": 760,
+    "human_5": 325,
+    "mundo_1": 323,
+    "rime_2": 312,
+    "orpheus_endfiller_1": 150,
+    "orpheus_grammar_1": 133,
+    "orpheus_midfiller_1": 128,
+    "human_convcollector_1": 68,
+    "chirp3_3_short": 57
+  },
+  "hindi_subset": {
+    "count": 6655,
+    "endpoint_bool_balance": {
+      "false": 3386,
+      "true": 3269
+    },
+    "synthetic_fraction": 1.0,
+    "duration_mean_s": 5.964
+  }
+}
