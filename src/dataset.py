@@ -14,6 +14,16 @@ Labels returned:
   annotate fillers (value is null in metadata).
 """
 
+import os
+
+# The whisper-tiny feature extractor is already cached locally. Force offline
+# so from_pretrained never blocks on an HF Hub network call -- critical on
+# Windows, where DataLoader workers spawn fresh and each re-imports this
+# module; a network stall here starves the GPU (workers never produce a
+# batch). Must be set before importing transformers.
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 from pathlib import Path
 
 import numpy as np

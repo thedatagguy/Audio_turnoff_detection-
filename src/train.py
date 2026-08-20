@@ -104,13 +104,17 @@ def main():
 
     train_ds = TurnDataset(args.data_dir, "train", args.max_seconds)
     val_ds = TurnDataset(args.data_dir, "val", args.max_seconds)
+    loader_kw = dict(collate_fn=collate, num_workers=args.num_workers, pin_memory=True)
+    if args.num_workers > 0:
+        # spawn workers once and keep them alive across epochs (Windows spawn
+        # is expensive); prefetch a couple batches per worker to overlap CPU
+        # feature extraction with the GPU step.
+        loader_kw.update(persistent_workers=True, prefetch_factor=2)
     train_loader = DataLoader(
-        train_ds, batch_size=args.batch_size, shuffle=True,
-        collate_fn=collate, num_workers=args.num_workers, pin_memory=True, drop_last=True,
+        train_ds, batch_size=args.batch_size, shuffle=True, drop_last=True, **loader_kw
     )
     val_loader = DataLoader(
-        val_ds, batch_size=args.batch_size, shuffle=False,
-        collate_fn=collate, num_workers=args.num_workers, pin_memory=True,
+        val_ds, batch_size=args.batch_size, shuffle=False, **loader_kw
     )
 
     model = TurnDetector(
