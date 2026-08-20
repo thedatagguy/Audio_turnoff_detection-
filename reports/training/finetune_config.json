@@ -1,0 +1,18 @@
+{
+  "data_dir": "data/processed",
+  "out_dir": "checkpoints\\finetune",
+  "epochs": 4,
+  "batch_size": 128,
+  "max_seconds": 8.0,
+  "pooling": "attention",
+  "freeze_encoder": false,
+  "no_endfiller_head": false,
+  "aux_weight": 0.3,
+  "encoder_lr": 1e-05,
+  "head_lr": 0.001,
+  "weight_decay": 0.01,
+  "num_workers": 6,
+  "max_train_batches": 0,
+  "seed": 42,
+  "device": "cuda"
+}

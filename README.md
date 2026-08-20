@@ -169,14 +169,61 @@ an unstratified split for just those thin strata instead of crashing).
   270,946 rows) would close the gap further if the model needs more Hindi
   data after initial experiments.
 
+## Model & training
+
+**Architecture** (`src/model.py`, `src/dataset.py`, `src/train.py`):
+
+- **Whisper-tiny encoder** (pretrained, the "ear") + **attention pooling** +
+  a small MLP **endpoint head**. Only the encoder is reused — Whisper's text
+  decoder is discarded; no text is ever generated. ~7.9M params total.
+- The encoder normally expects a fixed 30s input (1500 positions). We rebuild
+  it for an **8s window** by slicing the positional-embedding table
+  (1500 -> 400) and copying every other pretrained weight unchanged, cutting
+  wasted compute for our ~7s clips (supports the "tiny + fast" goal).
+- Clips are **right-aligned to the last 8s** — the turn boundary lives at the
+  END of the clip, so truncation drops the beginning, not the end. Features
+  are Whisper-compatible log-mel spectrograms.
+- **Auxiliary endfiller head** (multi-task), motivated directly by the EDA
+  finding that endfiller=True => turn-not-ended 100% of the time. Masked for
+  the ~14.5% of rows lacking the annotation.
+- Loss = BCE(endpoint) + 0.3 * masked_BCE(endfiller). Discriminative LRs
+  (1e-5 encoder / 1e-3 heads), bf16 autocast.
+
+```bash
+uv run python src/train.py --out-dir checkpoints/finetune --epochs 4 --batch-size 128 --num-workers 6
+uv run python src/train.py --out-dir checkpoints/frozen   --epochs 4 --batch-size 128 --num-workers 6 --freeze-encoder
+```
+
+**Results** (validation, 4 epochs, ~4 min on the RTX PRO 5000; full
+per-epoch/per-language history in `reports/training/`):
+
+| Model | Val Acc | Val F1 | **Hindi Acc** |
+|---|---|---|---|
+| Frozen encoder (head-only baseline) | 0.871 | 0.877 | 0.853 |
+| **Full fine-tune** | **0.901** | **0.906** | **0.922** |
+
+- Fine-tuning the encoder buys ~3 F1 points overall and **~7 points on Hindi**
+  — the biggest gain lands exactly on the target domain (Whisper's pretrained
+  Hindi representation is weaker, so adapting it helps Hindi most). This is the
+  core experiment justifying full fine-tuning over off-the-shelf features.
+- Hindi improved every epoch (0.898 -> 0.904 -> 0.917 -> 0.922) and ends
+  **above the overall average** — the Hindi-weighted curation paid off.
+- Weakest languages: Vietnamese (~0.72), Chinese/Bengali/Marathi (~0.81) —
+  low-resource/tonal languages lag, but they're out of scope for this
+  Hindi-focused challenge.
+
+> Note on a Windows gotcha fixed along the way: `DataLoader` workers spawn
+> fresh on Windows and were stalling on HF Hub network calls while re-loading
+> the feature extractor, starving the GPU (1% util). Fixed by forcing HF
+> offline (model is cached) + `persistent_workers`. See `src/dataset.py`.
+
 ## Project layout
 
 ```
 src/            training/inference/data-prep code
 data/           local dataset cache / processed splits (gitignored)
 checkpoints/    saved model weights (gitignored)
-notebooks/      exploratory analysis
-reports/        write-up, eval results, figures
+reports/        EDA + training results, write-up, figures
 ```
 
 ## Status
@@ -184,9 +231,11 @@ reports/        write-up, eval results, figures
 - [x] Environment scaffolded (uv, Python 3.12, CUDA-enabled torch, full stack verified)
 - [x] Data loading + curation script (`src/data_prep.py`), verified end-to-end
 - [x] Full data-prep pass run — 34,755 clips curated (`data/processed/`, see below)
-- [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
-- [ ] Model (Whisper-tiny encoder + classification head)
-- [ ] Training loop
-- [ ] Evaluation (general + Hinglish-specific split, latency benchmark)
+- [x] EDA on curated data (`src/eda.py`, `reports/eda/`)
+- [x] Model — Whisper-tiny encoder + attention pooling + endpoint/endfiller heads
+- [x] Training loop + fine-tune vs frozen baseline experiment
+- [ ] Test-set evaluation (final held-out metrics)
+- [ ] Latency benchmark (CPU + GPU ms/inference)
 - [ ] Gradio demo
+- [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
 - [ ] Write-up
