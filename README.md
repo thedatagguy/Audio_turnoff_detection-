@@ -117,6 +117,42 @@ print(next(iter(ds)).keys())
 
 Both checks pass as of this setup (2026-08-20).
 
+## Data preparation
+
+`src/data_prep.py` streams `pipecat-ai/smart-turn-data-v3.2-train` (no need
+to download the full 41.4GB up front) and curates a working subset:
+
+```bash
+uv run python src/data_prep.py --out-dir data/processed --max-scan 150000
+```
+
+- Applies per-language sample quotas (see `LANGUAGE_QUOTAS` in the script).
+  **Hindi is weighted far above its natural frequency** (quota 12,000, vs.
+  an estimated ~12k total available in the full dataset — i.e. we try to
+  take essentially all of it) since it's the closest available proxy for
+  the Hinglish target domain. Everything else is a thin general-multilingual
+  baseline slice, not a training priority.
+- The dataset has **no explicit Hinglish (code-switched) label** — only
+  plain `language == "hin"`. The Hindi pool curated here is a proxy, not
+  the real thing. A small hand-checked/supplemented Hinglish eval set is
+  still a to-do (see Status below).
+- Resamples every clip to 16kHz mono (Whisper's expected input) and writes
+  WAV files to `data/processed/audio/`.
+- Writes a stratified (by `language` + `endpoint_bool`) 80/10/10
+  train/val/test split to `metadata_{train,val,test}.csv`, plus a
+  `summary.json` with actual scanned/kept counts (the per-language numbers
+  above are estimates from HF's *partial* dataset statistics — this script
+  reports real counts from the actual streamed run).
+- `--max-scan` is a safety cap on rows scanned (the stream isn't shuffled
+  by language, so quotas may not all fill exactly); raise it if a run ends
+  with under-filled quotas for languages you care about.
+
+Verified end-to-end on a small scan (300 rows): streaming, resampling,
+WAV writing, and the stratified split all work correctly, including the
+edge case where a language+label stratum has too few members to split
+normally (handled via `safe_stratified_split`, which falls back to an
+unstratified split for just those thin strata instead of crashing).
+
 ## Project layout
 
 ```
@@ -130,7 +166,9 @@ reports/        write-up, eval results, figures
 ## Status
 
 - [x] Environment scaffolded (uv, Python 3.12, CUDA-enabled torch, full stack verified)
-- [ ] Data loading + Hinglish subset curation
+- [x] Data loading + curation script (`src/data_prep.py`), verified end-to-end
+- [ ] Run full data-prep pass and inspect the real per-language/label counts
+- [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
 - [ ] Model (Whisper-tiny encoder + classification head)
 - [ ] Training loop
 - [ ] Evaluation (general + Hinglish-specific split, latency benchmark)
