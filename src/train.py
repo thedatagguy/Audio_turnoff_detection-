@@ -91,6 +91,9 @@ def main():
     p.add_argument("--weight-decay", type=float, default=0.01)
     p.add_argument("--num-workers", type=int, default=8)
     p.add_argument("--max-train-batches", type=int, default=0, help="0=all; >0 for smoke tests")
+    p.add_argument("--eval-every", type=int, default=0,
+                   help="if >0, run val eval every N steps (for a fine-grained "
+                        "convergence curve) in addition to per-epoch eval")
     p.add_argument("--seed", type=int, default=42)
     args = p.parse_args()
 
@@ -138,6 +141,9 @@ def main():
     bce_none = nn.BCEWithLogitsLoss(reduction="none")
 
     history = []
+    step_losses = []   # (global_step, train_loss) every step
+    curve_evals = []   # (global_step, val_acc, val_f1, hin_acc) periodic
+    global_step = 0
     best_f1 = -1.0
     config_dump = vars(args) | {"device": str(device)}
     with open(out_dir / "config.json", "w") as f:
@@ -176,7 +182,17 @@ def main():
             running["loss_ep"] += loss_ep.item()
             running["loss_ef"] += loss_ef.detach().item()
             n_batches += 1
+            global_step += 1
+            step_losses.append((global_step, round(loss.item(), 4)))
             pbar.set_postfix(loss=running["loss"] / n_batches)
+
+            if args.eval_every and global_step % args.eval_every == 0:
+                m = evaluate(model, val_loader, device)
+                curve_evals.append((
+                    global_step, m["acc"], m["f1"],
+                    m["per_language"].get("hin", {}).get("acc"),
+                ))
+                model.train()  # evaluate() switched to eval mode
 
         train_time = time.time() - t0
         val_metrics = evaluate(model, val_loader, device)
@@ -196,6 +212,8 @@ def main():
 
         with open(out_dir / "history.json", "w") as f:
             json.dump(history, f, indent=2)
+        with open(out_dir / "curve.json", "w") as f:
+            json.dump({"step_losses": step_losses, "curve_evals": curve_evals}, f)
 
         if val_metrics["f1"] > best_f1:
             best_f1 = val_metrics["f1"]
