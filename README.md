@@ -241,6 +241,21 @@ conversational budget. 7.9M params, 31.6 MB checkpoint — tiny + fast + accurat
 > the feature extractor, starving the GPU (1% util). Fixed by forcing HF
 > offline (model is cached) + `persistent_workers`. See `src/dataset.py`.
 
+## Demo
+
+```bash
+uv run python src/demo.py --ckpt checkpoints/finetune/best.pt   # http://localhost:7860
+uv run python src/demo.py --share                               # public link
+```
+
+Record from the mic (or upload a clip) and the model decides **turn ended
+(respond)** vs **still talking (keep listening)**, showing the end-of-turn
+probability and the endfiller-head output. A **threshold slider** exposes the
+precision/recall trade-off — raising it makes the model more conservative
+about declaring "done", reducing mid-sentence interruptions (see the FP-skew
+in the test results above). Try finishing a sentence vs. cutting off on a
+filler like *"matlab..."* / *"umm..."* to see the filler detection fire.
+
 ## Project layout
 
 ```
@@ -261,6 +276,6 @@ reports/        EDA + training results, write-up, figures
 - [x] Convergence curves (`src/plot_curves.py`) — converges within epoch 1
 - [x] Test-set evaluation — 0.894 acc / 0.899 F1, Hindi 0.899 (`reports/eval/`)
 - [x] Latency benchmark — ~25ms CPU / ~11ms GPU per single-clip decision
-- [ ] Gradio demo
+- [x] Gradio demo (`src/demo.py`) with adjustable decision threshold
 - [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
 - [ ] Write-up
