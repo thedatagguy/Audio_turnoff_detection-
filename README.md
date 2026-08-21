@@ -212,6 +212,30 @@ per-epoch/per-language history in `reports/training/`):
   low-resource/tonal languages lag, but they're out of scope for this
   Hindi-focused challenge.
 
+**Held-out test set** (`src/evaluate.py`, `reports/eval/test_results.json`) —
+final numbers on the untouched 3,476-clip test split:
+
+- **0.894 accuracy / 0.899 F1** — matches validation, so no overfit to val.
+- **Hindi: 0.899** (666 clips) — target domain holds on truly unseen data.
+- **Endfiller head: 0.956** on annotated rows — the multi-task aux signal worked.
+- Errors skew to **false positives** (287 FP vs 83 FN): the model leans toward
+  declaring "done" (recall 0.95 > precision 0.85). In turn-detection terms a
+  FP interrupts the user mid-sentence, so a production system would raise the
+  decision threshold above 0.5 to trade recall for precision — no retraining
+  needed. Weakest languages: Bengali/Marathi (~0.75), Chinese (0.82); all
+  out of scope for this Hindi-focused challenge.
+
+**Latency** (batch=1, one clip = one real-time decision; feature extraction
+and model forward timed separately):
+
+| | Feature extraction | Model forward | End-to-end (median) |
+|---|---|---|---|
+| GPU | 2.3 ms | 9.1 ms | **11 ms** |
+| CPU | 2.8 ms | 22 ms | **25 ms** |
+
+~25 ms per decision on CPU (no GPU needed in production) vs. a ~100-200 ms
+conversational budget. 7.9M params, 31.6 MB checkpoint — tiny + fast + accurate.
+
 > Note on a Windows gotcha fixed along the way: `DataLoader` workers spawn
 > fresh on Windows and were stalling on HF Hub network calls while re-loading
 > the feature extractor, starving the GPU (1% util). Fixed by forcing HF
@@ -234,8 +258,9 @@ reports/        EDA + training results, write-up, figures
 - [x] EDA on curated data (`src/eda.py`, `reports/eda/`)
 - [x] Model — Whisper-tiny encoder + attention pooling + endpoint/endfiller heads
 - [x] Training loop + fine-tune vs frozen baseline experiment
-- [ ] Test-set evaluation (final held-out metrics)
-- [ ] Latency benchmark (CPU + GPU ms/inference)
+- [x] Convergence curves (`src/plot_curves.py`) — converges within epoch 1
+- [x] Test-set evaluation — 0.894 acc / 0.899 F1, Hindi 0.899 (`reports/eval/`)
+- [x] Latency benchmark — ~25ms CPU / ~11ms GPU per single-clip decision
 - [ ] Gradio demo
 - [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
 - [ ] Write-up
