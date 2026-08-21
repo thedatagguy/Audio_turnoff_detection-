@@ -1,0 +1,158 @@
+{
+  "checkpoint": "checkpoints\\finetune\\best.pt",
+  "model": {
+    "total_params": 7885186,
+    "checkpoint_size_mb": 31.6,
+    "max_seconds": 8.0,
+    "pooling": "attention"
+  },
+  "test_metrics": {
+    "n_test": 3476,
+    "accuracy": 0.8936,
+    "precision": 0.8514,
+    "recall": 0.952,
+    "f1": 0.8989,
+    "confusion_matrix": {
+      "TN": 1461,
+      "FP": 287,
+      "FN": 83,
+      "TP": 1645
+    },
+    "per_language": {
+      "ara": {
+        "n": 80,
+        "acc": 0.8625
+      },
+      "ben": {
+        "n": 99,
+        "acc": 0.7475
+      },
+      "dan": {
+        "n": 80,
+        "acc": 0.8875
+      },
+      "deu": {
+        "n": 151,
+        "acc": 0.9338
+      },
+      "eng": {
+        "n": 601,
+        "acc": 0.8968
+      },
+      "fin": {
+        "n": 100,
+        "acc": 0.87
+      },
+      "fra": {
+        "n": 151,
+        "acc": 0.9139
+      },
+      "hin": {
+        "n": 666,
+        "acc": 0.8994
+      },
+      "ind": {
+        "n": 100,
+        "acc": 0.91
+      },
+      "ita": {
+        "n": 79,
+        "acc": 0.962
+      },
+      "jpn": {
+        "n": 80,
+        "acc": 0.9
+      },
+      "kor": {
+        "n": 100,
+        "acc": 0.95
+      },
+      "mar": {
+        "n": 80,
+        "acc": 0.7625
+      },
+      "nld": {
+        "n": 99,
+        "acc": 0.8889
+      },
+      "nor": {
+        "n": 100,
+        "acc": 0.86
+      },
+      "pol": {
+        "n": 100,
+        "acc": 0.93
+      },
+      "por": {
+        "n": 151,
+        "acc": 0.9272
+      },
+      "rus": {
+        "n": 150,
+        "acc": 0.9067
+      },
+      "spa": {
+        "n": 151,
+        "acc": 0.9007
+      },
+      "tur": {
+        "n": 100,
+        "acc": 0.94
+      },
+      "ukr": {
+        "n": 79,
+        "acc": 0.8861
+      },
+      "vie": {
+        "n": 99,
+        "acc": 0.8485
+      },
+      "zho": {
+        "n": 80,
+        "acc": 0.825
+      }
+    },
+    "endfiller_head_acc_on_annotated": 0.9557,
+    "endfiller_annotated_n": 2959
+  },
+  "latency": {
+    "gpu": {
+      "device": "cuda",
+      "n_measured": 200,
+      "feature_extraction": {
+        "mean_ms": 2.6,
+        "median_ms": 2.33,
+        "p95_ms": 4.18
+      },
+      "model_forward": {
+        "mean_ms": 8.53,
+        "median_ms": 9.08,
+        "p95_ms": 10.5
+      },
+      "total_end_to_end": {
+        "mean_ms": 11.13,
+        "median_ms": 11.26,
+        "p95_ms": 14.47
+      }
+    },
+    "cpu": {
+      "device": "cpu",
+      "n_measured": 200,
+      "feature_extraction": {
+        "mean_ms": 3.15,
+        "median_ms": 2.84,
+        "p95_ms": 4.97
+      },
+      "model_forward": {
+        "mean_ms": 24.16,
+        "median_ms": 21.98,
+        "p95_ms": 35.11
+      },
+      "total_end_to_end": {
+        "mean_ms": 27.31,
+        "median_ms": 24.94,
+        "p95_ms": 40.21
+      }
+    }
+  }
+}
