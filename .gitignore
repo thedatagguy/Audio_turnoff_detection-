@@ -3,7 +3,12 @@
 __pycache__/
 *.pyc
 data/
-checkpoints/
+# Ignore checkpoints EXCEPT the final fine-tuned weights, which ship with the
+# repo so it's runnable/deployable without retraining (brief asks for weights).
+checkpoints/*
+!checkpoints/finetune/
+checkpoints/finetune/*
+!checkpoints/finetune/best.pt
 .cache/
 *.wav
 *.mp3
