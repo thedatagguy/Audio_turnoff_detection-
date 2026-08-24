@@ -261,10 +261,34 @@ filler like *"matlab..."* / *"umm..."* to see the filler detection fire.
 ## Project layout
 
 ```
-src/            training/inference/data-prep code
-data/           local dataset cache / processed splits (gitignored)
-checkpoints/    saved model weights (gitignored)
-reports/        EDA + training results, write-up, figures
+src/
+  model.py        model architecture (Whisper-tiny encoder + pooling + heads)
+  dataset.py      data loading + Whisper log-mel feature extraction
+  infer.py        single-clip inference wrapper (used by the demos)
+  train.py        training loop (fine-tune / --freeze-encoder baseline)
+  evaluate.py     held-out test metrics + latency benchmark
+  data_prep.py    stream + curate the dataset subset
+  eda.py          exploratory analysis + figures
+  plot_curves.py  convergence curves
+  demo.py         local Gradio demo
+streamlit_app.py  deployed live app (Streamlit Community Cloud)
+checkpoints/
+  finetune/best.pt   TRAINED MODEL WEIGHTS (31.6 MB, shipped in the repo)
+data/             curated 16kHz clips + split CSVs (gitignored; regenerate
+                  with src/data_prep.py)
+reports/          EDA + training + eval results, figures, report draft
+```
+
+**The trained weights are `checkpoints/finetune/best.pt`** — committed in the
+repo, so the demo and evaluation run without retraining. The other
+checkpoints and the `data/` folder are gitignored.
+
+## Run it
+
+```bash
+uv sync
+uv run python src/evaluate.py --ckpt checkpoints/finetune/best.pt   # reproduce test metrics + latency
+uv run streamlit run streamlit_app.py                               # run the demo locally
 ```
 
 ## Status
@@ -278,6 +302,6 @@ reports/        EDA + training results, write-up, figures
 - [x] Convergence curves (`src/plot_curves.py`) — converges within epoch 1
 - [x] Test-set evaluation — 0.894 acc / 0.899 F1, Hindi 0.899 (`reports/eval/`)
 - [x] Latency benchmark — ~25ms CPU / ~11ms GPU per single-clip decision
-- [x] Gradio demo (`src/demo.py`) with adjustable decision threshold
+- [x] Demo — local Gradio (`src/demo.py`) + deployed Streamlit app (`streamlit_app.py`)
+- [x] Report draft (`reports/REPORT_draft.md`, `reports/report_outline.md`)
 - [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
-- [ ] Write-up
