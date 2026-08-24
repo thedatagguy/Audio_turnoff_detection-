@@ -14,3 +14,5 @@ checkpoints/finetune/*
 *.mp3
 .ipynb_checkpoints/
 spaces/best.pt
+reports/REPORT_draft.md
+reports/report_outline.md
