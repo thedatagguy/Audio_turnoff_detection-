@@ -13,3 +13,4 @@ checkpoints/finetune/*
 *.wav
 *.mp3
 .ipynb_checkpoints/
+spaces/best.pt

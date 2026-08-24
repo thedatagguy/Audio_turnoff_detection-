@@ -1,0 +1,11 @@
+# CPU-only torch (Spaces free tier has no GPU). The --extra-index-url pulls
+# the smaller CPU wheels instead of the multi-GB CUDA build.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0
+torchaudio==2.11.0
+transformers==5.15.1
+librosa==1.0.0
+soundfile==0.14.0
+numpy
+# gradio is provided by the Space runtime (see sdk_version in README.md),
+# so it is intentionally NOT pinned here to avoid a double-install conflict.
