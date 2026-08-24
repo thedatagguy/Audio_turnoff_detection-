@@ -303,5 +303,5 @@ uv run streamlit run streamlit_app.py                               # run the de
 - [x] Test-set evaluation — 0.894 acc / 0.899 F1, Hindi 0.899 (`reports/eval/`)
 - [x] Latency benchmark — ~25ms CPU / ~11ms GPU per single-clip decision
 - [x] Demo — local Gradio (`src/demo.py`) + deployed Streamlit app (`streamlit_app.py`)
-- [x] Report draft (`reports/REPORT_draft.md`, `reports/report_outline.md`)
+- [ ] Write-up (in progress)
 - [ ] Supplement with a hand-checked Hinglish eval set (dataset has no native Hinglish label)
